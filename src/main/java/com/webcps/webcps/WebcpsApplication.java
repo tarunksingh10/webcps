@@ -16,4 +16,5 @@ public class WebcpsApplication extends SpringBootServletInitializer {
 	public static void main(String[] args) {
 		SpringApplication.run(WebcpsApplication.class, args);
 	}
+
 }
