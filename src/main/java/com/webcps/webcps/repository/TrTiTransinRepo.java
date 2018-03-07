@@ -8,7 +8,7 @@ import org.springframework.stereotype.Repository;
 import com.webcps.webcps.model.TrTiTransin;
 
 @Repository
-public interface DataRepository extends JpaRepository< TrTiTransin, Serializable> {
+public interface TrTiTransinRepo extends JpaRepository< TrTiTransin, Serializable> {
 	
 	
 
