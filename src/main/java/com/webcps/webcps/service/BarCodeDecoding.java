@@ -279,16 +279,14 @@ public class BarCodeDecoding {
 			
 			BigDecimal totalDays= new BigDecimal(days).setScale(2,BigDecimal.ROUND_UP);
 			
-			// Call 
+			BigDecimal totalDays1=totalDays.add(new BigDecimal(1));
+			
+			String se_membertype=null; // get memeber Type
 			
 			
-			//BigDecimal bg = new BigDecimal(totalSeconds);
-			
-			//bg=bg.
-		}
 		
 		
 		
 		
-	}
+	
 }

@@ -11,5 +11,4 @@ import com.webcps.webcps.model.TrTiTransin;
 public interface TrTiTransinRepo extends JpaRepository< TrTiTransin, Serializable> {
 	
 	
-
 }
