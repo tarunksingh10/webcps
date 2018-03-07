@@ -20,7 +20,7 @@ public class UserController {
 		return "login";
 	}
 
-	@RequestMapping(value = "/welcome", method = RequestMethod.POST)
+	@RequestMapping(value = "/welcome", method = RequestMethod.GET)
 	public String welcome(Model model, @RequestParam("userName") String userName,
 			@RequestParam("password") String password) {
 		String userExists = loginService.userAuthentication(userName, password);
@@ -42,5 +42,11 @@ public class UserController {
 	@RequestMapping(value = "/endShift", method = RequestMethod.POST)
 	public void endShift(@RequestParam("userName") String userName) {
 		loginService.endShift(userName);
+	}
+
+	@RequestMapping(value = "/cpsOperation", method = RequestMethod.POST)
+	public String cpsOperation(Model model, @RequestParam("ticketNumber") String ticketNumber) {
+		model.addAttribute("success", "Transaction Process completed successfully");
+		return "welcome";
 	}
 }

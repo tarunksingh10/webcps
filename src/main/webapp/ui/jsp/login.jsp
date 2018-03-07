@@ -26,7 +26,7 @@
 </head>
 
 <body>
-	<form method="POST" action="/welcome" class="form-signin">
+	<form method="GET" action="/welcome" class="form-signin">
 		<h1 class="h3 mb-3 font-weight-normal">Please sign in</h1>
 		<label for="userName" class="sr-only">Email address</label> 
 		<input id="userName" name="userName" class="form-control" placeholder="User Name" required autofocus> 

@@ -1,6 +1,6 @@
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
-
+<%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 
 <!DOCTYPE html>
 <html lang="en">
@@ -16,6 +16,23 @@
 
 <link href="/bootstrap.min.css" rel="stylesheet">
 <link href="/form-validation.css" rel="stylesheet">
+<script src="/jquery-2.2.1.min.js"></script>
+<script src="/bootstrap.min.js"></script>
+
+<script type="text/javascript">
+	//Refresh page
+	function refreshPage() {
+		window.parent.location = window.parent.location.href;
+	}
+
+
+	function openSuccessModal() {
+		$(document).ready(function() {
+			$("#successModal").modal();
+		});
+	}
+</script>
+
 
 <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
 <!--[if lt IE 9]>
@@ -33,26 +50,74 @@
 		<div class="row">
 			<div class="col-md-8 order-md-1">
 
-				<form class="needs-validation" novalidate>
+				<form method="POST" action="/cpsOperation">
 					<div class="row">
 						<div class="col-md-6 mb-3">
 							<h2 class="mb-3">Ticket No.</h2>
 						</div>
-						<div class="col-md-6 mb-3" style="margin-top:20px">
-							<input type="text" class="form-control" id="lastName"
-								placeholder="" value="" required readonly>
+						<div class="col-md-6 mb-3" style="margin-top: 20px">
+							<input type="text" class="form-control" id="ticketNumber" name="ticketNumber" placeholder="Ticket number"
+								value="" required>
 
 						</div>
 					</div>
-					<br>
-					<br>
+					<br> <br>
 					<div class="row">
 						<button class="btn btn-primary btn-lg" type="submit">Proceed</button>
-						<button class="btn btn-primary btn-lg" type="submit">Cancel</button>
+						<button class="btn btn-primary btn-lg" type="button" data-toggle="modal" data-target="#cancelModal">Cancel</button>
 					</div>
+					<c:if test="${not empty success}">
+						<script>
+							openSuccessModal();
+						</script>
+					</c:if>
 				</form>
 			</div>
 		</div>
+
+
+		<!--Cancel Modal -->
+		<div class="modal fade" id="cancelModal" role="dialog">
+			<div class="modal-dialog">
+				<!-- Modal content-->
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal">&times;</button>
+						<h4 class="modal-title">Cancel transaction ?</h4>
+					</div>
+					<div class="modal-body">
+						<p>Are you sure you want to cancel this transaction ?</p>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-default" data-dismiss="modal" onclick="refreshPage()">Yes</button>
+						<button type="button" class="btn btn-default" data-dismiss="modal">No</button>
+					</div>
+				</div>
+			</div>
+		</div>
+
+
+		<!-- Sucess Modal -->
+		<div class="modal fade" id="successModal" role="dialog">
+			<div class="modal-dialog">
+				<!-- Modal content-->
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal">&times;</button>
+						<h4 class="modal-title">Success</h4>
+					</div>
+					<div class="modal-body">
+						<p>Transaction Process completed successfully.!</p>
+						<a href="#" class="btn btn-success btn-lg"> <span class="glyphicon glyphicon-ok"></span>
+						</a>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-default" data-dismiss="modal">Ok</button>
+					</div>
+				</div>
+			</div>
+		</div>
+
 
 		<footer class="my-5 pt-5 text-muted text-center text-small">
 			<p class="mb-1">&copy; 2017-2018 Company Name</p>
@@ -63,40 +128,6 @@
 			</ul>
 		</footer>
 	</div>
-
-	<!-- Bootstrap core JavaScript
-    ================================================== -->
-	<!-- Placed at the end of the document so the pages load faster -->
-	<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
-		integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
-		crossorigin="anonymous"></script>
-	<script>window.jQuery || document.write('<script src="../../../../assets/js/vendor/jquery-slim.min.js"><\/script>')
-	</script>
-	<script src="../../../../assets/js/vendor/popper.min.js"></script>
-	<script src="../../../../dist/js/bootstrap.min.js"></script>
-	<script src="../../../../assets/js/vendor/holder.min.js"></script>
-	<script>
-		// Example starter JavaScript for disabling form submissions if there are invalid fields
-		(function() {
-			'use strict';
-	
-			window.addEventListener('load', function() {
-				// Fetch all the forms we want to apply custom Bootstrap validation styles to
-				var forms = document.getElementsByClassName('needs-validation');
-	
-				// Loop over them and prevent submission
-				var validation = Array.prototype.filter.call(forms, function(form) {
-					form.addEventListener('submit', function(event) {
-						if (form.checkValidity() === false) {
-							event.preventDefault();
-							event.stopPropagation();
-						}
-						form.classList.add('was-validated');
-					}, false);
-				});
-			}, false);
-		})();
-	</script>
 
 </body>
 </html>
