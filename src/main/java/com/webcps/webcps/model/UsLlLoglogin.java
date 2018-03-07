@@ -28,6 +28,7 @@ public class UsLlLoglogin implements Serializable {
 
 	@Id
 	@Temporal(TemporalType.TIMESTAMP)
+	@Column(name = "LL_DateTime")
 	private Date LL_DateTime;
 
 	private String LL_Loc;

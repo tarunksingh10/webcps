@@ -24,6 +24,10 @@ import lombok.Data;
 public class UsLuListuser implements Serializable {
 	private static final long serialVersionUID = 1L;
 
+	@Id
+	@Column(name = "lu_user")
+	private String luUser;
+
 	@Column(name = "lu_access")
 	private String luAccess;
 
@@ -33,7 +37,6 @@ public class UsLuListuser implements Serializable {
 	@Column(name = "lu_backup")
 	private int luBackup;
 
-	@Id
 	@Column(name = "lu_code")
 	private String luCode;
 
@@ -94,9 +97,6 @@ public class UsLuListuser implements Serializable {
 	@Temporal(TemporalType.TIMESTAMP)
 	@Column(name = "lu_timee")
 	private Date luTimee;
-
-	@Column(name = "lu_user")
-	private String luUser;
 
 	@Column(name = "lu_userida")
 	private String luUserida;
