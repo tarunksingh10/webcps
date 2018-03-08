@@ -7,15 +7,19 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.webcps.webcps.model.ChCcCasualcharge;
 import com.webcps.webcps.model.ChHlHolidayday;
 import com.webcps.webcps.model.StSeSettingparameter;
 import com.webcps.webcps.model.TrTiTransin;
+import com.webcps.webcps.repository.CCCasulaChargRepo;
 import com.webcps.webcps.repository.ChHolidayRepo;
 import com.webcps.webcps.repository.StSettingParamRepo;
 import com.webcps.webcps.repository.TrTiTransinRepo;
@@ -30,17 +34,24 @@ public class CalculationService {
 	@Autowired
 	private ChHolidayRepo chHolidayRepo;
 
+	@Autowired
+	private CCCasulaChargRepo CCCasulaChargRepo;
+
 	List<String> memberTypes = new ArrayList<String>();
 
-	public long calculateRate() {
+	public BigDecimal calculateRate(String key) {
 
 		TrTiTransin tiTransin = new TrTiTransin();
+		BigDecimal totalMins = null;
+
+		tiTransin = trTiTransinRepo.findOne(key);
 
 		DateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
 		Date date = new Date();
 		System.out.println(dateFormat.format(date)); // 2016/11/16 12:08:43
 
-		// check format in which date is coming
+		String current_date = dateFormat.format(date);// check format in which
+														// date is coming
 
 		Date intime = tiTransin.getTiDatetimein();
 
@@ -52,7 +63,7 @@ public class CalculationService {
 			long totalMin = Math.abs(TimeUnit.MINUTES.convert(diffInMillies,
 					TimeUnit.MILLISECONDS));
 
-			BigDecimal totalMins = new BigDecimal(totalMin);
+			totalMins = new BigDecimal(totalMin);
 
 			totalMins = totalMins.setScale(2, BigDecimal.ROUND_UP);
 
@@ -72,28 +83,32 @@ public class CalculationService {
 		memberTypes.add("O");
 		memberTypes.add("P");
 
+		// DateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
+
 		StSeSettingparameter StSeSettingparameter = stSettingParamRepo
 				.findMemberType();
 
-		String rtime;
+		String rtime = null;
 		String indate;
 
 		if ("I".equalsIgnoreCase(StSeSettingparameter.getSeMembertype())
 				|| "P".equalsIgnoreCase(StSeSettingparameter.getSeMembertype())) {
-			
-			
-     rtime = getTimeFromDate(intime);
-     //indate =
+
+			rtime = getTimeFromDate(intime);
+			indate = dateFormat.format(intime).substring(0, 10);
+			// indate =
+		} else if ("O".equalsIgnoreCase(StSeSettingparameter.getSeMembertype())) {
+			rtime = getTimeFromDate(new Date());
+			indate = dateFormat.format(new Date()).substring(0, 10);
 		}
 
+		String day_type = null;
 		if (memberTypes.contains(StSeSettingparameter.getSeMembertype())) {
 
 			Date date_c = new Date();
 			String modifiedDate = new SimpleDateFormat("yyyy-MM-dd")
 					.format(date_c);
 			ChHlHolidayday chHlHolidayday = chHolidayRepo.findOne(modifiedDate);
-
-			String day_type = null;
 
 			// check this logic for DB
 			if (null != chHlHolidayday) {
@@ -108,7 +123,75 @@ public class CalculationService {
 
 		}
 
-		return 10;
+		ChCcCasualcharge ChCcCasualcharge = CCCasulaChargRepo.findRateByParam(
+				"4_WHEELER", day_type, current_date, rtime);
+		BigDecimal cal_chrg = new BigDecimal(0);
+		int str_tolerance = ChCcCasualcharge.getCcStarttolerance();
+		int end_tolarance = ChCcCasualcharge.getCcEndtolerance();
+		int maxchrg = ChCcCasualcharge.getCcMaxchg();
+		int penchrg = ChCcCasualcharge.getCcPenaltychg();
+
+		String cc_groupchg = "cc_groupchg";
+		String cc_unit_str = "cc_unit";
+		String cc_charge_str = "cc_chg";
+
+		Map<String, String> cc_groupchgMap = new HashMap<String, String>();
+		Map<String, Integer> cc_unit = new HashMap<String, Integer>();
+		Map<String, Integer> cc_charge = new HashMap<String, Integer>();
+
+		cc_groupchgMap.put("cc_groupchg1", ChCcCasualcharge.getCcGroupchg1());
+		cc_groupchgMap.put("cc_groupchg2", ChCcCasualcharge.getCcGroupchg2());
+		cc_groupchgMap.put("cc_groupchg3", ChCcCasualcharge.getCcGroupchg3());
+		cc_groupchgMap.put("cc_groupchg4", ChCcCasualcharge.getCcGroupchg4());
+		cc_groupchgMap.put("cc_groupchg5", ChCcCasualcharge.getCcGroupchg5());
+
+		cc_unit.put("cc_unit1", ChCcCasualcharge.getCcUnit1());
+		cc_unit.put("cc_unit2", ChCcCasualcharge.getCcUnit2());
+		cc_unit.put("cc_unit3", ChCcCasualcharge.getCcUnit3());
+		cc_unit.put("cc_unit4", ChCcCasualcharge.getCcUnit4());
+		cc_unit.put("cc_unit5", ChCcCasualcharge.getCcUnit5());
+
+		cc_charge.put("cc_chg1", ChCcCasualcharge.getCcChg1());
+		cc_charge.put("cc_chg2", ChCcCasualcharge.getCcChg2());
+		cc_charge.put("cc_chg3", ChCcCasualcharge.getCcChg3());
+		cc_charge.put("cc_chg4", ChCcCasualcharge.getCcChg4());
+		cc_charge.put("cc_chg5", ChCcCasualcharge.getCcChg5());
+
+		if (null != ChCcCasualcharge) {
+
+			if (totalMins.intValue() > str_tolerance
+					&& totalMins.intValue() > end_tolarance) {
+
+				BigDecimal totalTimein = totalMins;
+				totalMins = totalMins.subtract(new BigDecimal(end_tolarance));
+
+				for (int i = 1; i <= 5; i++) {
+
+					String cc_groupchg_key = "cc_groupchg" + i;
+					String cc_unit_str_key = "cc_unit" + i;
+					String cc_charge_str_key = "cc_chg" + i;
+
+					if ("F".equalsIgnoreCase(cc_groupchgMap
+							.get(cc_groupchg_key)) && totalMins.intValue() > 0) {
+						totalMins = totalMins.subtract(new BigDecimal(cc_unit
+								.get(cc_unit_str_key)));
+						cal_chrg = cal_chrg.add(new BigDecimal(cc_charge
+								.get(cc_charge_str_key)));
+					} else if ("P".equalsIgnoreCase(cc_groupchgMap
+							.get(cc_groupchg_key)) && totalMins.intValue() > 0) {
+						while (totalMins.intValue() > 0) {
+							totalMins = totalMins.subtract(new BigDecimal(
+									cc_unit.get(cc_unit_str_key)));
+							cal_chrg = cal_chrg.add(new BigDecimal(cc_charge
+									.get(cc_charge_str_key)));
+
+						}
+					}
+				}
+			}
+
+		}
+		return cal_chrg;
 	}
 
 	public static boolean isWeekend(String ts) {
@@ -122,16 +205,15 @@ public class CalculationService {
 
 	private String getTimeFromDate(Date date) {
 
-
 		DateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
-		//Date date = new Date();
-		String s=dateFormat.format(date);
-		System.out.println(s); //2016/11/16 12:08:43
-		
-		String ns= s.substring(s.length()-8);
-		
+		// Date date = new Date();
+		String s = dateFormat.format(date);
+		System.out.println(s); // 2016/11/16 12:08:43
+
+		String ns = s.substring(s.length() - 8);
+
 		System.out.println(ns);
-		
+
 		return ns;
 
 	}

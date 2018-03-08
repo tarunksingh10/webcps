@@ -13,7 +13,7 @@ public interface CCCasulaChargRepo extends JpaRepository<ChCcCasualcharge, Strin
 		 		+ "T.ccActiveflag = 'A' AND T.ccStartdate<= :currdate "
 		 		+ "AND T.ccStartlimit < :rtime AND ccEndlimit> :rtime") 
 	 
-	 ChCcCasualcharge findTitleById(@Param("id") Long id);
+	 ChCcCasualcharge findRateByParam(@Param("vechicalType") String vechicalType,@Param("day_type") String day_type, @Param("currdate") String currdate, @Param("rtime") String rtime);
 
 	
 }

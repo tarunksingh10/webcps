@@ -1,17 +1,7 @@
 package com.webcps.webcps.service;
 
-import java.math.BigDecimal;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
-import com.webcps.webcps.model.TrTiTransin;
-
-public class BarCodeDecoding {
+public class BarCodeDecoding {}/*
 
 	public static void main(String args[]) {
 
@@ -145,14 +135,14 @@ public class BarCodeDecoding {
 	
 	public void calculateRate(String barcode){
 		
-	/*	 $barcode = trim($_REQUEST['barcode']);
+		 $barcode = trim($_REQUEST['barcode']);
 		    $outopname = $_REQUEST['opname'];
 		    $exitgate = $_REQUEST['gateid'];
 		    $vehtype = $_REQUEST['vehtype'];
 		    $varvehno = "0000";
 		    $veh_no = $_REQUEST['veh_no'];
 		    $loccode_fromapp = $_REQUEST['loccode'];
-		*/
+		
 		
 		//to get from input box
 		//String barcode;
@@ -283,10 +273,18 @@ public class BarCodeDecoding {
 			
 			String se_membertype=null; // get memeber Type
 			
+			if(tiTransin.){}
 			
+			// Call 
+			
+			
+			//BigDecimal bg = new BigDecimal(totalSeconds);
+			
+			//bg=bg.
+		}
 		
 		
 		
 		
-	
-}
+	}
+*///}
