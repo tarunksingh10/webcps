@@ -41,12 +41,10 @@ public class CalculationService {
 
 	List<String> memberTypes = new ArrayList<String>();
 
-	public BigDecimal calculateRate(String key) {
+	public BigDecimal calculateRate(TrTiTransin tiTransin) {
 
-		TrTiTransin tiTransin = new TrTiTransin();
+		// TrTiTransin tiTransin = new TrTiTransin();
 		BigDecimal totalMins = null;
-
-		tiTransin = trTiTransinRepo.findOne(key);
 
 		DateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
 		Date date = new Date();
@@ -98,18 +96,18 @@ public class CalculationService {
 				|| "P".equalsIgnoreCase(StSeSettingparameter.getSeMembertype())) {
 
 			rtime = getTimeFromDate(intime);
-			
-			//java.sql.Time timeValue = new java.sql.Time(rtime);
-			
-			rtime1=java.sql.Time.valueOf(rtime);
+
+			// java.sql.Time timeValue = new java.sql.Time(rtime);
+
+			rtime1 = java.sql.Time.valueOf(rtime);
 			indate = dateFormat.format(intime).substring(0, 10);
 			// indate =
 		} else if ("O".equalsIgnoreCase(StSeSettingparameter.getSeMembertype())) {
 			rtime = getTimeFromDate(new Date());
-			rtime1=java.sql.Time.valueOf(rtime);
-			
+			rtime1 = java.sql.Time.valueOf(rtime);
+
 			indate = dateFormat.format(new Date()).substring(0, 10);
-			
+
 		}
 
 		String day_type = null;
@@ -119,27 +117,24 @@ public class CalculationService {
 			Date date_c = new Date();
 			String modifiedDate = new SimpleDateFormat("yyyy-MM-dd")
 					.format(date_c);
-			
-			
+
 			Calendar cal = Calendar.getInstance();
 			cal.add(Calendar.DATE, 1);
 			SimpleDateFormat format1 = new SimpleDateFormat("yyyy-MM-dd");
-			//System.out.println(cal.getTime());
+			// System.out.println(cal.getTime());
 			// Output "Wed Sep 26 14:23:28 EST 2012"
 
 			String formatted = format1.format(cal.getTime());
 			System.out.println(formatted);
 			ChHlHolidayday chHlHolidayday = null;
 			try {
-			Date d=	format1.parse(formatted);
-			chHlHolidayday	 = chHolidayRepo.findOne(d);
-			System.out.println(d);
+				Date d = format1.parse(formatted);
+				chHlHolidayday = chHolidayRepo.findOne(d);
+				System.out.println(d);
 			} catch (ParseException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			
-			
 
 			// check this logic for DB
 			if (null != chHlHolidayday) {
@@ -154,8 +149,11 @@ public class CalculationService {
 
 		}
 
-		/*ChCcCasualcharge ChCcCasualcharge = CCCasulaChargRepo.findRateByParam(
-				"4_WHEELER", day_type, current_date, rtime);*/
+		/*
+		 * ChCcCasualcharge ChCcCasualcharge =
+		 * CCCasulaChargRepo.findRateByParam( "4_WHEELER", day_type,
+		 * current_date, rtime);
+		 */
 		ChCcCasualcharge ChCcCasualcharge = CCCasulaChargRepo.findRateByParam(
 				"4_WHEELER", day_type, new Date(), rtime1);
 		BigDecimal cal_chrg = new BigDecimal(0);
@@ -248,6 +246,18 @@ public class CalculationService {
 		System.out.println(ns);
 
 		return ns;
+
+	}
+
+	public BigDecimal calacRateInfo(String barcode) {
+
+		BigDecimal returnvall = new BigDecimal(-9999);
+
+		TrTiTransin tiTransin = trTiTransinRepo.findOne(barcode);
+		if (null != tiTransin) {
+			returnvall = calculateRate(tiTransin);
+		}
+		return returnvall;
 
 	}
 }
