@@ -8,6 +8,6 @@ import com.webcps.webcps.model.StSeSettingparameter;
 public interface StSettingParamRepo extends JpaRepository<StSeSettingparameter, String> {
 	
 	
-	@Query("SELECT se_membertype, se_loccode FROM st_se_settingparameter WHERE se_membertype in ('I','O','P')")
+	@Query("SELECT T FROM StSeSettingparameter T  WHERE T.seMembertype in ('I','O','P')")
     public StSeSettingparameter findMemberType();
 }

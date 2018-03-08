@@ -1,7 +1,9 @@
 package com.webcps.webcps.service;
 
 import java.math.BigDecimal;
+import java.sql.Time;
 import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -90,25 +92,54 @@ public class CalculationService {
 
 		String rtime = null;
 		String indate;
+		Time rtime1 = null;
 
 		if ("I".equalsIgnoreCase(StSeSettingparameter.getSeMembertype())
 				|| "P".equalsIgnoreCase(StSeSettingparameter.getSeMembertype())) {
 
 			rtime = getTimeFromDate(intime);
+			
+			//java.sql.Time timeValue = new java.sql.Time(rtime);
+			
+			rtime1=java.sql.Time.valueOf(rtime);
 			indate = dateFormat.format(intime).substring(0, 10);
 			// indate =
 		} else if ("O".equalsIgnoreCase(StSeSettingparameter.getSeMembertype())) {
 			rtime = getTimeFromDate(new Date());
+			rtime1=java.sql.Time.valueOf(rtime);
+			
 			indate = dateFormat.format(new Date()).substring(0, 10);
+			
 		}
 
 		String day_type = null;
 		if (memberTypes.contains(StSeSettingparameter.getSeMembertype())) {
 
+			// check after adding data to table
 			Date date_c = new Date();
 			String modifiedDate = new SimpleDateFormat("yyyy-MM-dd")
 					.format(date_c);
-			ChHlHolidayday chHlHolidayday = chHolidayRepo.findOne(modifiedDate);
+			
+			
+			Calendar cal = Calendar.getInstance();
+			cal.add(Calendar.DATE, 1);
+			SimpleDateFormat format1 = new SimpleDateFormat("yyyy-MM-dd");
+			//System.out.println(cal.getTime());
+			// Output "Wed Sep 26 14:23:28 EST 2012"
+
+			String formatted = format1.format(cal.getTime());
+			System.out.println(formatted);
+			ChHlHolidayday chHlHolidayday = null;
+			try {
+			Date d=	format1.parse(formatted);
+			chHlHolidayday	 = chHolidayRepo.findOne(d);
+			System.out.println(d);
+			} catch (ParseException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+			
 
 			// check this logic for DB
 			if (null != chHlHolidayday) {
@@ -123,8 +154,10 @@ public class CalculationService {
 
 		}
 
+		/*ChCcCasualcharge ChCcCasualcharge = CCCasulaChargRepo.findRateByParam(
+				"4_WHEELER", day_type, current_date, rtime);*/
 		ChCcCasualcharge ChCcCasualcharge = CCCasulaChargRepo.findRateByParam(
-				"4_WHEELER", day_type, current_date, rtime);
+				"4_WHEELER", day_type, new Date(), rtime1);
 		BigDecimal cal_chrg = new BigDecimal(0);
 		int str_tolerance = ChCcCasualcharge.getCcStarttolerance();
 		int end_tolarance = ChCcCasualcharge.getCcEndtolerance();
@@ -196,8 +229,8 @@ public class CalculationService {
 
 	public static boolean isWeekend(String ts) {
 		int year = Integer.parseInt(ts.substring(0, 4));
-		int month = Integer.parseInt(ts.substring(4, 6));
-		int day = Integer.parseInt(ts.substring(6, 8));
+		int month = Integer.parseInt(ts.substring(5, 7));
+		int day = Integer.parseInt(ts.substring(8, 10));
 		Calendar cal = new GregorianCalendar(year, month - 1, day);
 		int dayOfWeek = cal.get(Calendar.DAY_OF_WEEK);
 		return (Calendar.SUNDAY == dayOfWeek || Calendar.SATURDAY == dayOfWeek);
