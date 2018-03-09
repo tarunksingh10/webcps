@@ -17,9 +17,9 @@ public class UserController {
 
 	@Autowired
 	private LoginService loginService;
-	
+
 	@Autowired
-	private CalculationService CalculationService;
+	private CalculationService calculationService;
 
 	@RequestMapping(value = "/login", method = RequestMethod.GET)
 	public String login(Model model, String error, String logout) {
@@ -52,12 +52,17 @@ public class UserController {
 
 	@RequestMapping(value = "/cpsOperation", method = RequestMethod.POST)
 	public String cpsOperation(Model model, @RequestParam("ticketNumber") String ticketNumber) {
-		model.addAttribute("success", "Transaction Process completed successfully");
+		
+		BigDecimal rate = calculationService.calacRateInfo(ticketNumber);
+		if (rate.compareTo(new BigDecimal(-9999)) != 0)
+			model.addAttribute("success", "Transaction Process completed successfully");
+		else
+			model.addAttribute("error", "Transaction Process Failed");
 		return "welcome";
 	}
-	
+
 	@RequestMapping(value = "/calc", method = RequestMethod.GET)
 	public BigDecimal getCalculation(@RequestParam("barcode") String barcode) {
-		return this.CalculationService.calculateRate(barcode);
+		return calculationService.calacRateInfo(barcode);
 	}
 }

@@ -20,10 +20,12 @@ import org.springframework.stereotype.Service;
 import com.webcps.webcps.model.ChCcCasualcharge;
 import com.webcps.webcps.model.ChHlHolidayday;
 import com.webcps.webcps.model.StSeSettingparameter;
+import com.webcps.webcps.model.TrTfTransfast;
 import com.webcps.webcps.model.TrTiTransin;
 import com.webcps.webcps.repository.CCCasulaChargRepo;
 import com.webcps.webcps.repository.ChHolidayRepo;
 import com.webcps.webcps.repository.StSettingParamRepo;
+import com.webcps.webcps.repository.TrTfTransfastRepo;
 import com.webcps.webcps.repository.TrTiTransinRepo;
 
 @Service
@@ -38,6 +40,9 @@ public class CalculationService {
 
 	@Autowired
 	private CCCasulaChargRepo CCCasulaChargRepo;
+
+	@Autowired
+	private TrTfTransfastRepo trTfTransfastRepo;
 
 	List<String> memberTypes = new ArrayList<String>();
 
@@ -60,18 +65,15 @@ public class CalculationService {
 		} else {
 
 			long diffInMillies = Math.abs(date.getTime() - intime.getTime());
-			long totalMin = Math.abs(TimeUnit.MINUTES.convert(diffInMillies,
-					TimeUnit.MILLISECONDS));
+			long totalMin = Math.abs(TimeUnit.MINUTES.convert(diffInMillies, TimeUnit.MILLISECONDS));
 
 			totalMins = new BigDecimal(totalMin);
 
 			totalMins = totalMins.setScale(2, BigDecimal.ROUND_UP);
 
-			long days = Math.abs(TimeUnit.DAYS.convert(diffInMillies,
-					TimeUnit.MILLISECONDS));
+			long days = Math.abs(TimeUnit.DAYS.convert(diffInMillies, TimeUnit.MILLISECONDS));
 
-			BigDecimal totalDays = new BigDecimal(days).setScale(2,
-					BigDecimal.ROUND_UP);
+			BigDecimal totalDays = new BigDecimal(days).setScale(2, BigDecimal.ROUND_UP);
 
 			BigDecimal totalDays1 = totalDays.add(new BigDecimal(1));
 
@@ -85,8 +87,7 @@ public class CalculationService {
 
 		// DateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
 
-		StSeSettingparameter StSeSettingparameter = stSettingParamRepo
-				.findMemberType();
+		StSeSettingparameter StSeSettingparameter = stSettingParamRepo.findMemberType();
 
 		String rtime = null;
 		String indate;
@@ -115,8 +116,7 @@ public class CalculationService {
 
 			// check after adding data to table
 			Date date_c = new Date();
-			String modifiedDate = new SimpleDateFormat("yyyy-MM-dd")
-					.format(date_c);
+			String modifiedDate = new SimpleDateFormat("yyyy-MM-dd").format(date_c);
 
 			Calendar cal = Calendar.getInstance();
 			cal.add(Calendar.DATE, 1);
@@ -154,8 +154,8 @@ public class CalculationService {
 		 * CCCasulaChargRepo.findRateByParam( "4_WHEELER", day_type,
 		 * current_date, rtime);
 		 */
-		ChCcCasualcharge ChCcCasualcharge = CCCasulaChargRepo.findRateByParam(
-				"4_WHEELER", day_type, new Date(), rtime1);
+		ChCcCasualcharge ChCcCasualcharge = CCCasulaChargRepo.findRateByParam("4_WHEELER", day_type, new Date(),
+				rtime1);
 		BigDecimal cal_chrg = new BigDecimal(0);
 		int str_tolerance = ChCcCasualcharge.getCcStarttolerance();
 		int end_tolarance = ChCcCasualcharge.getCcEndtolerance();
@@ -190,8 +190,7 @@ public class CalculationService {
 
 		if (null != ChCcCasualcharge) {
 
-			if (totalMins.intValue() > str_tolerance
-					&& totalMins.intValue() > end_tolarance) {
+			if (totalMins.intValue() > str_tolerance && totalMins.intValue() > end_tolarance) {
 
 				BigDecimal totalTimein = totalMins;
 				totalMins = totalMins.subtract(new BigDecimal(end_tolarance));
@@ -202,19 +201,13 @@ public class CalculationService {
 					String cc_unit_str_key = "cc_unit" + i;
 					String cc_charge_str_key = "cc_chg" + i;
 
-					if ("F".equalsIgnoreCase(cc_groupchgMap
-							.get(cc_groupchg_key)) && totalMins.intValue() > 0) {
-						totalMins = totalMins.subtract(new BigDecimal(cc_unit
-								.get(cc_unit_str_key)));
-						cal_chrg = cal_chrg.add(new BigDecimal(cc_charge
-								.get(cc_charge_str_key)));
-					} else if ("P".equalsIgnoreCase(cc_groupchgMap
-							.get(cc_groupchg_key)) && totalMins.intValue() > 0) {
+					if ("F".equalsIgnoreCase(cc_groupchgMap.get(cc_groupchg_key)) && totalMins.intValue() > 0) {
+						totalMins = totalMins.subtract(new BigDecimal(cc_unit.get(cc_unit_str_key)));
+						cal_chrg = cal_chrg.add(new BigDecimal(cc_charge.get(cc_charge_str_key)));
+					} else if ("P".equalsIgnoreCase(cc_groupchgMap.get(cc_groupchg_key)) && totalMins.intValue() > 0) {
 						while (totalMins.intValue() > 0) {
-							totalMins = totalMins.subtract(new BigDecimal(
-									cc_unit.get(cc_unit_str_key)));
-							cal_chrg = cal_chrg.add(new BigDecimal(cc_charge
-									.get(cc_charge_str_key)));
+							totalMins = totalMins.subtract(new BigDecimal(cc_unit.get(cc_unit_str_key)));
+							cal_chrg = cal_chrg.add(new BigDecimal(cc_charge.get(cc_charge_str_key)));
 
 						}
 					}
@@ -256,8 +249,61 @@ public class CalculationService {
 		TrTiTransin tiTransin = trTiTransinRepo.findOne(barcode);
 		if (null != tiTransin) {
 			returnvall = calculateRate(tiTransin);
+			updateTrTfTransfast(barcode, returnvall);
+		} else {
+			insertTrTiTransin(barcode);
 		}
 		return returnvall;
+
+	}
+
+	private void updateTrTfTransfast(String barcode, BigDecimal tarrif) {
+		TrTfTransfast trTfTransfast = trTfTransfastRepo.findOne(barcode);
+		if (null != trTfTransfast) {
+			trTfTransfast.setTfStandartchg(tarrif.intValue());
+			trTfTransfast.setTfStandartchg2(tarrif.intValue());
+		}
+	}
+
+	private void insertTrTiTransin(String barcode) {
+		TrTiTransin tiTransin = new TrTiTransin();
+		tiTransin.setTiKey("");// auto generated key
+		tiTransin.setTiGatein("");// decode from barcode
+		tiTransin.setTiUserin("");
+		tiTransin.setTiDatetimein(new Date());// decode from barcode
+		tiTransin.setTiVtName("4_WHEELER");
+		tiTransin.setTiType(0);
+		tiTransin.setTiMmName("");
+		tiTransin.setTiCmCode("");
+		tiTransin.setTiTicketno("");// Convert the hex got from barcode decode
+									// to decimal
+		tiTransin.setTiOrderbay((byte) 0);
+		tiTransin.setTiStandartchg(0);
+		tiTransin.setTiPaymentchg(0);
+		tiTransin.setTiValetchg(0);
+		tiTransin.setTiPrepaidchg(0);
+		tiTransin.setTiFlazzreceived(0);
+		tiTransin.setTiSeLoccode("");// location code got from decoding the
+										// barcode
+		tiTransin.setTiBackup(0);
+		tiTransin.setTi_CardNo("0");
+		tiTransin.setTi_DataCard("0");
+		tiTransin.setTiStatustrx("N");
+		tiTransin.setTiCountererror(0);
+		tiTransin.setTiDtpasstru(new Date());// Date & time decoded from the
+												// Barcode - assume seconds as
+												// 00
+		tiTransin.setTiImagein1("");
+		tiTransin.setTiImagein2("");
+		tiTransin.setTiKeyout(barcode);
+		tiTransin.setTiUsegig("0");
+		tiTransin.setTiNotax("0");
+		tiTransin.setTiUsercancel("");
+		tiTransin.setTiNotes("");
+		tiTransin.setTiOrang(1);
+		tiTransin.setTiKeyout1("");
+
+		trTiTransinRepo.save(tiTransin);
 
 	}
 }

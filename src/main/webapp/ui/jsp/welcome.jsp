@@ -31,6 +31,13 @@
 			$("#successModal").modal();
 		});
 	}
+
+
+	function openErrorModal() {
+		$(document).ready(function() {
+			$("#errorModal").modal();
+		});
+	}
 </script>
 
 
@@ -46,7 +53,7 @@
 		<div class="py-5 text-center">
 			<h2>Welcome</h2>
 		</div>
-
+		
 		<div class="row">
 			<div class="col-md-8 order-md-1">
 
@@ -69,6 +76,12 @@
 					<c:if test="${not empty success}">
 						<script>
 							openSuccessModal();
+						</script>
+					</c:if>
+
+					<c:if test="${not empty error}">
+						<script>
+							openErrorModal();
 						</script>
 					</c:if>
 				</form>
@@ -97,7 +110,7 @@
 		</div>
 
 
-		<!-- Sucess Modal -->
+		<!-- Success Modal -->
 		<div class="modal fade" id="successModal" role="dialog">
 			<div class="modal-dialog">
 				<!-- Modal content-->
@@ -112,7 +125,28 @@
 						</a>
 					</div>
 					<div class="modal-footer">
-						<button type="button" class="btn btn-default" data-dismiss="modal">Ok</button>
+						<button type="button" class="btn btn-success" data-dismiss="modal">Ok</button>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Error Modal -->
+		<div class="modal fade" id="errorModal" role="dialog">
+			<div class="modal-dialog">
+				<!-- Modal content-->
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal">&times;</button>
+						<h4 class="modal-title">Error</h4>
+					</div>
+					<div class="modal-body">
+						<p>Transaction Process Failed.!</p>
+						<a href="#" class="btn btn-danger btn-lg"> <span class="glyphicon glyphicon-ok"></span>
+						</a>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-danger" data-dismiss="modal">Ok</button>
 					</div>
 				</div>
 			</div>
