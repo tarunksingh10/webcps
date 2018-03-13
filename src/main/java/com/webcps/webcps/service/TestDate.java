@@ -10,6 +10,22 @@ public class TestDate {
 
 	public static void main  (String args[]){
 		
+		 char l3_str='c';
+		 String str1="c";
+		 
+		 System.out.println(str1.equals(String.valueOf(l3_str)));
+		
+		int value = 54;
+		char digit = (char) value;
+		System.out.println("The ASCII representation of " + value + " is ->" + digit + "<-"); 
+		
+		
+		Double d1= 1+Math.floor(2/10)+48;
+		System.out.println(d1);
+		System.out.println(d1.intValue());
+		
+		
+		
 		String information="2018-03-08";
 		
 		System.out.println(information.substring(8,10));
