@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import com.webcps.webcps.model.TrTfTransfast;
+import com.webcps.webcps.repository.TrTfTransfastRepo;
 import com.webcps.webcps.service.CalculationService;
 import com.webcps.webcps.service.LoginService;
 
@@ -20,6 +22,9 @@ public class UserController {
 
 	@Autowired
 	private CalculationService calculationService;
+
+	@Autowired
+	private TrTfTransfastRepo trTfTransfastRepo;
 
 	@RequestMapping(value = "/login", method = RequestMethod.GET)
 	public String login(Model model, String error, String logout) {
@@ -46,18 +51,25 @@ public class UserController {
 	}
 
 	@RequestMapping(value = "/endShift", method = RequestMethod.POST)
-	public void endShift(@RequestParam("userName") String userName) {
+	public String endShift(@RequestParam("userName") String userName) {
 		loginService.endShift(userName);
+		return "login";
 	}
 
 	@RequestMapping(value = "/cpsOperation", method = RequestMethod.POST)
 	public String cpsOperation(Model model, @RequestParam("ticketNumber") String ticketNumber) {
-		
-		BigDecimal rate = calculationService.calacRateInfo(ticketNumber);
-		if (rate.compareTo(new BigDecimal(-9999)) != 0)
-			model.addAttribute("success", "Transaction Process completed successfully");
-		else
-			model.addAttribute("error", "Transaction Process Failed");
+
+		TrTfTransfast trTfTransfast = trTfTransfastRepo.findOne(ticketNumber);
+		if (trTfTransfast != null) {
+			model.addAttribute("alreadyScanned", "Ticket already scanned");
+		} else {
+			BigDecimal rate = calculationService.calacRateInfo(ticketNumber);
+			if (rate.compareTo(new BigDecimal(-9999)) != 0)
+				model.addAttribute("success", "Transaction Process completed successfully");
+			else
+				model.addAttribute("error", "Transaction Process Failed");
+		}
+
 		return "welcome";
 	}
 

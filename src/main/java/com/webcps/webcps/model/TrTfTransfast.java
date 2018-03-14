@@ -5,6 +5,7 @@ import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.Id;
 import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
@@ -77,6 +78,7 @@ public class TrTfTransfast implements Serializable {
 	@Column(name="tf_key")
 	private String tfKey;
 
+	@Id
 	@Column(name="tf_keyout")
 	private String tfKeyout;
 

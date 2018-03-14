@@ -33,8 +33,10 @@ public class CalculationService {
 
 	@Autowired
 	private StSettingParamRepo stSettingParamRepo;
+
 	@Autowired
 	private TrTiTransinRepo trTiTransinRepo;
+
 	@Autowired
 	private ChHolidayRepo chHolidayRepo;
 
@@ -249,7 +251,7 @@ public class CalculationService {
 		TrTiTransin tiTransin = trTiTransinRepo.findOne(barcode);
 		if (null != tiTransin) {
 			returnvall = calculateRate(tiTransin);
-			updateTrTfTransfast(barcode, returnvall);
+			insertTrTfTransfast(barcode, returnvall, tiTransin);
 		} else {
 			insertTrTiTransin(barcode);
 		}
@@ -257,12 +259,58 @@ public class CalculationService {
 
 	}
 
-	private void updateTrTfTransfast(String barcode, BigDecimal tarrif) {
-		TrTfTransfast trTfTransfast = trTfTransfastRepo.findOne(barcode);
-		if (null != trTfTransfast) {
-			trTfTransfast.setTfStandartchg(tarrif.intValue());
-			trTfTransfast.setTfStandartchg2(tarrif.intValue());
-		}
+	private void insertTrTfTransfast(String barcode, BigDecimal tarrif, TrTiTransin tiTransin) {
+		TrTfTransfast trTfTransfast = new TrTfTransfast();
+		trTfTransfast.setTfKey("");// auto generated key
+		trTfTransfast.setTfPoliceno("");
+		trTfTransfast.setTfCardno("0000");
+		trTfTransfast.setTfGatein(tiTransin.getTiGatein());
+		trTfTransfast.setTfUserin(tiTransin.getTiUserin());
+		trTfTransfast.setTfDatetimein(tiTransin.getTiDatetimein());
+		trTfTransfast.setTfVtName(tiTransin.getTiVtName());
+		trTfTransfast.setTfType(0);
+		trTfTransfast.setTfMmName("");
+		trTfTransfast.setTfCmCode("");
+		trTfTransfast.setTfTicketno(tiTransin.getTiTicketno());
+		trTfTransfast.setTfDatacard("");
+		trTfTransfast.setTfManualticketno("");
+		trTfTransfast.setTfGateout("PK10");
+		trTfTransfast.setTfUserout("PP14");
+		trTfTransfast.setTfDatetimeout(new Date());
+		trTfTransfast.setTfDuration(0);// time difference
+		trTfTransfast.setTfPrepaidchg(0);
+		trTfTransfast.setTfFlazzreceived(0);
+		trTfTransfast.setTfStandartchg(tarrif.intValue());
+		trTfTransfast.setTfStandartchg2(tarrif.intValue());
+		trTfTransfast.setTfValeychg(0);
+		trTfTransfast.setTfOvernightchg(0);
+		trTfTransfast.setTfOvernightchg2(0);
+		trTfTransfast.setTfBaychg(0);
+		trTfTransfast.setTfPenaltychg(0);
+		trTfTransfast.setTfPpntax(0);
+		trTfTransfast.setTfParktax(0);
+		trTfTransfast.setTfStatementstat((byte) 0);
+		trTfTransfast.setTfRecstat((byte) 0);
+		trTfTransfast.setTfCounterpass(0);
+		trTfTransfast.setTfStatustrx("N");
+		trTfTransfast.setTfLotre((byte) 0);
+		trTfTransfast.setTfVouchername("");
+		trTfTransfast.setTfQtyvoucher(0);
+		trTfTransfast.setTfVoucherchg(0);
+		trTfTransfast.setTfNotes("");
+		trTfTransfast.setTfDataproblem("");
+		trTfTransfast.setTfSeLoccode("740"); // decode for barcode
+		trTfTransfast.setTfUserida("");
+		trTfTransfast.setTfTimea(new Date(0000, 00, 00, 00, 00, 00));
+		trTfTransfast.setTfBackup(0);
+		trTfTransfast.setTfFirstchg(0);
+		trTfTransfast.setTfEksklusifchg(0);
+		trTfTransfast.setTfTimestartovernight(null);
+		trTfTransfast.setTfKeyout(tiTransin.getTiKeyout());
+		trTfTransfast.setTfNotax("0");
+		trTfTransfast.setTfKeluar((byte) 0);
+		trTfTransfast.setTfWaktukeluar(null);
+		trTfTransfastRepo.save(trTfTransfast);
 	}
 
 	private void insertTrTiTransin(String barcode) {
@@ -305,5 +353,32 @@ public class CalculationService {
 
 		trTiTransinRepo.save(tiTransin);
 
+	}
+
+	private String autoGeneratekey(TrTiTransin tiTransin) {
+		StringBuffer key = new StringBuffer();
+
+		key.append("00");
+		key.append(tiTransin.getTiGatein());
+
+		Date datein = tiTransin.getTiDatetimein();
+		Calendar cal = Calendar.getInstance();
+		cal.setTime(datein);
+		Integer year = cal.get(Calendar.YEAR);
+		Integer month = cal.get(Calendar.MONTH);
+		Integer day = cal.get(Calendar.DAY_OF_MONTH);
+		Integer hour = cal.get(Calendar.HOUR_OF_DAY);
+		Integer minute = cal.get(Calendar.MINUTE);
+		Integer second = cal.get(Calendar.SECOND);
+		String year1 = year.toString();
+		String yy = year1.substring(Math.max(year1.length() - 2, 0));
+		String mm = String.format("%02d", month);
+		String dd = String.format("%02d", day);
+		String hh = String.format("%02d", hour);
+		String mmm = String.format("%02d", minute);
+		String ss = String.format("%02d", second);
+
+		key.append(yy).append(mm).append(dd).append(hh).append(mmm).append(ss);
+		return key.toString();
 	}
 }

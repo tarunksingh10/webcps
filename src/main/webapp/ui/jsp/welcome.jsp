@@ -38,6 +38,13 @@
 			$("#errorModal").modal();
 		});
 	}
+	
+	
+	function openAlreadyScannedModal() {
+		$(document).ready(function() {
+			$("#alreadyScanned").modal();
+		});
+	}
 </script>
 
 
@@ -53,41 +60,56 @@
 		<div class="py-5 text-center">
 			<h2>Welcome</h2>
 		</div>
-		
-		<div class="row">
-			<div class="col-md-8 order-md-1">
-
-				<form method="POST" action="/cpsOperation">
-					<div class="row">
-						<div class="col-md-6 mb-3">
-							<h2 class="mb-3">Ticket No.</h2>
-						</div>
-						<div class="col-md-6 mb-3" style="margin-top: 20px">
-							<input type="text" class="form-control" id="ticketNumber" name="ticketNumber" placeholder="Ticket number"
-								value="" required>
-
-						</div>
-					</div>
-					<br> <br>
-					<div class="row">
-						<button class="btn btn-primary btn-lg" type="submit">Proceed</button>
-						<button class="btn btn-primary btn-lg" type="button" data-toggle="modal" data-target="#cancelModal">Cancel</button>
-					</div>
-					<c:if test="${not empty success}">
-						<script>
-							openSuccessModal();
-						</script>
-					</c:if>
-
-					<c:if test="${not empty error}">
-						<script>
-							openErrorModal();
-						</script>
-					</c:if>
+		<div class="well">
+			<div class="py-5 text-right">
+				<form method="POST" action="/endShift?userName=${userName}">
+					<button class="btn btn-primary btn-sm" name="endShift" type="submit">End Shift</button>
+				</form>
+				<form method="POST" action="/logout?userName=${userName}">
+					<button class="btn btn-primary btn-sm" name="logout" type="submit">Logout</button>
 				</form>
 			</div>
-		</div>
 
+			<div class="row">
+				<div class="col-md-8 order-md-1">
+
+					<form method="POST" action="/cpsOperation">
+						<div class="row">
+							<div class="col-md-6 mb-3">
+								<h2 class="mb-3">Ticket No.</h2>
+							</div>
+							<div class="col-md-6 mb-3" style="margin-top: 20px">
+								<input type="text" class="form-control" id="ticketNumber" name="ticketNumber" placeholder="Ticket number"
+									value="" required>
+
+							</div>
+						</div>
+						<br> <br>
+						<div class="row">
+							<button class="btn btn-primary btn-lg" type="submit">Proceed</button>
+							<button class="btn btn-primary btn-lg" type="button" data-toggle="modal" data-target="#cancelModal">Cancel</button>
+						</div>
+						<c:if test="${not empty success}">
+							<script>
+								openSuccessModal();
+							</script>
+						</c:if>
+
+						<c:if test="${not empty error}">
+							<script>
+								openErrorModal();
+							</script>
+						</c:if>
+						
+						<c:if test="${not empty alreadyScanned}">
+							<script>
+								openAlreadyScannedModal();
+							</script>
+						</c:if>
+					</form>
+				</div>
+			</div>
+		</div>
 
 		<!--Cancel Modal -->
 		<div class="modal fade" id="cancelModal" role="dialog">
@@ -147,6 +169,28 @@
 					</div>
 					<div class="modal-footer">
 						<button type="button" class="btn btn-danger" data-dismiss="modal">Ok</button>
+					</div>
+				</div>
+			</div>
+		</div>
+
+
+		<!-- Already Scanned -->
+		<div class="modal fade" id="alreadyScanned" role="dialog">
+			<div class="modal-dialog">
+				<!-- Modal content-->
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal">&times;</button>
+						<h4 class="modal-title">Info</h4>
+					</div>
+					<div class="modal-body">
+						<p>Ticket already Scanned</p>
+						<a href="#" class="btn btn-danger btn-lg"> <span class="glyphicon glyphicon-ok"></span>
+						</a>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-info" data-dismiss="modal">Ok</button>
 					</div>
 				</div>
 			</div>

@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import com.webcps.webcps.model.UsLlLoglogin;
 import com.webcps.webcps.model.UsLuListuser;
+import com.webcps.webcps.model.UsUhUserhistory;
 import com.webcps.webcps.repository.UsLlLogloginRepo;
 import com.webcps.webcps.repository.UsLuListuserRepo;
 import com.webcps.webcps.repository.UsUhUserhistoryRepo;
@@ -65,6 +66,9 @@ public class LoginService {
 		usLlLoglogin.setLL_Modal(0);
 		usLlLoglogin.setLL_Loc("740");
 		usLlLoglogin.setLL_Settlement("N");
+		usLlLoglogin.setLL_NoTicketStart("");
+		usLlLoglogin.setLL_NoTicketEnd("");
+		usLlLoglogin.setLL_VT_Name("");
 		usLlLogloginRepo.save(usLlLoglogin);
 	}
 
@@ -87,6 +91,7 @@ public class LoginService {
 					usLuListuser.setLuLlType("E");
 					usLuListuser.setLuEnddate(new Date());
 					usLuListuser.setLuOldip(hostip);
+					addRecordUsUhUserhistory(usLuListuser);
 				} catch (UnknownHostException e) {
 					e.printStackTrace();
 				}
@@ -95,5 +100,39 @@ public class LoginService {
 
 			}
 		}
+	}
+
+	private void addRecordUsUhUserhistory(UsLuListuser usLuListuser) {
+		UsUhUserhistory usUhUserhistory = new UsUhUserhistory();
+		usUhUserhistory.setLuCode(usLuListuser.getLuCode());
+		usUhUserhistory.setLuInitial(usLuListuser.getLuInitial());
+		usUhUserhistory.setLuUser(usLuListuser.getLuUser());
+		usUhUserhistory.setLuName(usLuListuser.getLuName());
+		usUhUserhistory.setLuPassword(usLuListuser.getLuPassword1());
+		usUhUserhistory.setLuLvCode(usLuListuser.getLuLvCode());
+		usUhUserhistory.setLuNotes(usLuListuser.getLuNotes());
+		usUhUserhistory.setLuDpCode(usLuListuser.getLuDpCode());
+		usUhUserhistory.setLuStatus("A");
+		usUhUserhistory.setLuCreator("N");
+		usUhUserhistory.setLuPrepaidlimit(0);
+		usUhUserhistory.setLuAdjustlimit(0);
+		usUhUserhistory.setLuIpaddr(usLuListuser.getLuIpaddr());
+		usUhUserhistory.setLuOldip(usLuListuser.getLuOldip());
+		usUhUserhistory.setLuSeLoccode("740");
+		usUhUserhistory.setLuUseride(usLuListuser.getLuUseride());
+		usUhUserhistory.setLuTimee(usLuListuser.getLuTimee());
+		usUhUserhistory.setLuUserida("");
+		usUhUserhistory.setLuTimea(usLuListuser.getLuTimea());
+		usUhUserhistory.setLuBackup(0);
+		usUhUserhistory.setLuAccess("O");
+		usUhUserhistory.setLuLlType("S");
+		usUhUserhistory.setLuStartdate(usLuListuser.getLuStartdate());
+		usUhUserhistory.setLuEnddate(usLuListuser.getLuEnddate());
+		usUhUserhistory.setLuSeod(new Date(0000, 00, 00, 00, 00, 00));
+		usUhUserhistory.setLuEeod(new Date(0000, 00, 00, 00, 00, 00));
+		usUhUserhistory.setLuRseod(new Date(0000, 00, 00, 00, 00, 00));
+		usUhUserhistory.setLuReeod(new Date(0000, 00, 00, 00, 00, 00));
+		usUhUserhistory.setLuCounter(0);
+		usUhUserhistoryRepo.save(usUhUserhistory);
 	}
 }
