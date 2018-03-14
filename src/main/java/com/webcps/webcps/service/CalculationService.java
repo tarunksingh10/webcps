@@ -244,24 +244,29 @@ public class CalculationService {
 
 	}
 
-	public BigDecimal calacRateInfo(String barcode) {
+	public BigDecimal calacRateInfo(String barcode, String barcode_in_time, String barcode_tiTickeNo,
+			String barcode_gateId) {
 
 		BigDecimal returnvall = new BigDecimal(-9999);
-
 		TrTiTransin tiTransin = trTiTransinRepo.findOne(barcode);
+
+		StSeSettingparameter StSeSettingparameter = stSettingParamRepo.findMemberType();
+		String loc_code_from_db = StSeSettingparameter.getId().getSeLoccode();
+
 		if (null != tiTransin) {
 			returnvall = calculateRate(tiTransin);
-			insertTrTfTransfast(barcode, returnvall, tiTransin);
+			insertTrTfTransfast(returnvall, tiTransin, loc_code_from_db, barcode_in_time, barcode_gateId);
 		} else {
-			insertTrTiTransin(barcode);
+			insertTrTiTransin(barcode, barcode_in_time, barcode_tiTickeNo, barcode_gateId, loc_code_from_db);
 		}
 		return returnvall;
 
 	}
 
-	private void insertTrTfTransfast(String barcode, BigDecimal tarrif, TrTiTransin tiTransin) {
+	private void insertTrTfTransfast(BigDecimal tarrif, TrTiTransin tiTransin, String loc_code_from_db,
+			String barcode_in_time, String barcode_gateId) {
 		TrTfTransfast trTfTransfast = new TrTfTransfast();
-		trTfTransfast.setTfKey("");// auto generated key
+		trTfTransfast.setTfKey(autoGeneratekey(barcode_in_time, barcode_gateId));
 		trTfTransfast.setTfPoliceno("");
 		trTfTransfast.setTfCardno("0000");
 		trTfTransfast.setTfGatein(tiTransin.getTiGatein());
@@ -277,7 +282,7 @@ public class CalculationService {
 		trTfTransfast.setTfGateout("PK10");
 		trTfTransfast.setTfUserout("PP14");
 		trTfTransfast.setTfDatetimeout(new Date());
-		trTfTransfast.setTfDuration(0);// time difference
+		trTfTransfast.setTfDuration(timeDurationInMinutes(stringToDate(barcode_in_time)));
 		trTfTransfast.setTfPrepaidchg(0);
 		trTfTransfast.setTfFlazzreceived(0);
 		trTfTransfast.setTfStandartchg(tarrif.intValue());
@@ -299,7 +304,7 @@ public class CalculationService {
 		trTfTransfast.setTfVoucherchg(0);
 		trTfTransfast.setTfNotes("");
 		trTfTransfast.setTfDataproblem("");
-		trTfTransfast.setTfSeLoccode("740"); // decode for barcode
+		trTfTransfast.setTfSeLoccode(loc_code_from_db);
 		trTfTransfast.setTfUserida("");
 		trTfTransfast.setTfTimea(new Date(0000, 00, 00, 00, 00, 00));
 		trTfTransfast.setTfBackup(0);
@@ -313,34 +318,31 @@ public class CalculationService {
 		trTfTransfastRepo.save(trTfTransfast);
 	}
 
-	private void insertTrTiTransin(String barcode) {
+	private void insertTrTiTransin(String barcode, String barcode_in_time, String barcode_tiTickeNo,
+			String barcode_gateId, String loc_code_from_db) {
 		TrTiTransin tiTransin = new TrTiTransin();
-		tiTransin.setTiKey("");// auto generated key
-		tiTransin.setTiGatein("");// decode from barcode
-		tiTransin.setTiUserin("");
-		tiTransin.setTiDatetimein(new Date());// decode from barcode
+		tiTransin.setTiKey(autoGeneratekey(barcode_in_time, barcode_gateId));
+		tiTransin.setTiGatein(barcode_gateId);
+		tiTransin.setTiUserin(System.getProperty("user.name"));
+		tiTransin.setTiDatetimein(stringToDate(barcode_in_time));
 		tiTransin.setTiVtName("4_WHEELER");
 		tiTransin.setTiType(0);
 		tiTransin.setTiMmName("");
 		tiTransin.setTiCmCode("");
-		tiTransin.setTiTicketno("");// Convert the hex got from barcode decode
-									// to decimal
+		tiTransin.setTiTicketno(barcode_tiTickeNo);
 		tiTransin.setTiOrderbay((byte) 0);
 		tiTransin.setTiStandartchg(0);
 		tiTransin.setTiPaymentchg(0);
 		tiTransin.setTiValetchg(0);
 		tiTransin.setTiPrepaidchg(0);
 		tiTransin.setTiFlazzreceived(0);
-		tiTransin.setTiSeLoccode("");// location code got from decoding the
-										// barcode
+		tiTransin.setTiSeLoccode(loc_code_from_db);
 		tiTransin.setTiBackup(0);
 		tiTransin.setTi_CardNo("0");
 		tiTransin.setTi_DataCard("0");
 		tiTransin.setTiStatustrx("N");
 		tiTransin.setTiCountererror(0);
-		tiTransin.setTiDtpasstru(new Date());// Date & time decoded from the
-												// Barcode - assume seconds as
-												// 00
+		tiTransin.setTiDtpasstru(stringToDate(barcode_in_time));
 		tiTransin.setTiImagein1("");
 		tiTransin.setTiImagein2("");
 		tiTransin.setTiKeyout(barcode);
@@ -350,18 +352,17 @@ public class CalculationService {
 		tiTransin.setTiNotes("");
 		tiTransin.setTiOrang(1);
 		tiTransin.setTiKeyout1("");
-
 		trTiTransinRepo.save(tiTransin);
 
 	}
 
-	private String autoGeneratekey(TrTiTransin tiTransin) {
+	private String autoGeneratekey(String barcode_in_time, String barcode_gateId) {
+
 		StringBuffer key = new StringBuffer();
-
 		key.append("00");
-		key.append(tiTransin.getTiGatein());
+		key.append(barcode_gateId);
 
-		Date datein = tiTransin.getTiDatetimein();
+		Date datein = stringToDate(barcode_in_time);
 		Calendar cal = Calendar.getInstance();
 		cal.setTime(datein);
 		Integer year = cal.get(Calendar.YEAR);
@@ -382,16 +383,12 @@ public class CalculationService {
 		return key.toString();
 	}
 
-	
-public Map <String,String>getData(String barcod1e){
-		
-		StSeSettingparameter StSeSettingparameter = stSettingParamRepo
-				.findMemberType();
+	public Map<String, String> getData(String barcod1e) {
 
-				
-		Map<String,String> dataMap= new HashMap<String, String>();
-				
-		
+		StSeSettingparameter StSeSettingparameter = stSettingParamRepo.findMemberType();
+
+		Map<String, String> dataMap = new HashMap<String, String>();
+
 		System.out.println(barcod1e);
 
 		Map<String, String> monthMap = new HashMap<String, String>();
@@ -472,18 +469,23 @@ public Map <String,String>getData(String barcod1e){
 		minutearray.put("I", "8");
 		minutearray.put("J", "9");
 
-		
-		//String barcod1e = "81A5M0117GADQBB882";
+		// String barcod1e = "81A5M0117GADQBB882";
+
+		String ticketHexNum = barcod1e.substring(0, 4);
+		Integer tiTicketNo = Integer.parseInt(ticketHexNum, 16);
+
+		dataMap.put("tiTicketNo", tiTicketNo.toString());
 
 		// Gate Id
 		String gateId = barcod1e.substring(4, 7);
+
+		dataMap.put("gateId", gateId);
 
 		// year
 		String year = barcod1e.substring(7, 9);
 
 		// Year prefix
-		String yearPrefix = String.valueOf(Calendar.getInstance().get(
-				Calendar.YEAR));
+		String yearPrefix = String.valueOf(Calendar.getInstance().get(Calendar.YEAR));
 
 		// get year prefix from calcer like year
 		year = yearPrefix.substring(0, 2) + year;
@@ -496,101 +498,109 @@ public Map <String,String>getData(String barcod1e){
 		monthval = monthMap1.get(monthval);
 
 		// From bar code get 11 and 12 char and get value from map
-		String dateval = datearray.get(barcod1e.substring(10, 11))
-				+ datearray.get(barcod1e.substring(11, 12));
+		String dateval = datearray.get(barcod1e.substring(10, 11)) + datearray.get(barcod1e.substring(11, 12));
 
 		// get 13 char and calculate hour value
-		String hourVal = hourArray.get(barcod1e.substring(12, 1));
+		String hourVal = hourArray.get(barcod1e.substring(12, 13));
 
 		// get 14 and 15 char and get minute value
 
-		String minuteval = minutearray.get(barcod1e.substring(13, 1))
-				+ minutearray.get(barcod1e).substring(14, 15);
+		String minuteval = minutearray.get(barcod1e.substring(13, 14)) + minutearray.get(barcod1e.substring(14, 15));
 
 		// By default seconds are 00
-		String vehtimeinfrombarcode = year + "-" + monthval + "-" + dateval
-				+ " " + hourVal + ":" + minuteval + ":00";
-		
+		String vehtimeinfrombarcode = year + "-" + monthval + "-" + dateval + " " + hourVal + ":" + minuteval + ":00";
+
 		dataMap.put("in_time_barcode", vehtimeinfrombarcode);
-		
-		
-		
-		String loc_code_from_db=StSeSettingparameter.getId().getSeLoccode();
-		
-		String apploc1=barcod1e.substring(15, 1);
-		String apploc2=barcod1e.substring(16, 1);
-		String apploc3=barcod1e.substring(17,1);
-		
-		String loc1 = loc_code_from_db.substring( 0, 1);
-        String loc2 = loc_code_from_db.substring( 1, 1);
-        String loc3 = loc_code_from_db.substring( 2, 1);
-        
-        Double minuteVal=Double.valueOf(minuteval);
 
-        Double l1=Integer.valueOf(loc1)+Math.floor(minuteVal/10)+48;
-        char l1_str;
-        
-        if(l1>48 && l1<57){
-        	l1_str =getASCIValue(l1.intValue());
-        }else{
-        	l1=l1+7;
-        	l1_str=getASCIValue(l1.intValue());
-        }
-        
-       /* $l2 = (int)$loc2 + ($minuteval % 7) + 48;
-        if ($l2 > 48 && $l2 < 57) {
-            $l2 = chr($l2);
-        } else {
-            $l2 = $l2 + 7;
-            $l2 = chr($l2);
-        }*/
-        Double l2=Integer.valueOf(loc2)+Math.floor(minuteVal%7)+48;
-        char l2_str;
-        if(l2>48 && l2<57){
-        	l2_str=getASCIValue(l2.intValue());
-        }else{
-        	l2=l2+7;
-        	l2_str=getASCIValue(l2.intValue());
-        }
-       /* $l3 = (int)$loc3 + ($hourval % 7) + 48;
-        if ($l3 > 48 && $l3 < 57) {
-            $l3 = chr($l3);
-        } else {
-            $l3 = $l3 + 7;
-            $l3 = chr($l3);
-        }*/
-        
-        Double l3=Integer.valueOf(loc3)+Math.floor(Double.valueOf(hourVal) % 7)+48;
-        char l3_str;
-        
-        if(l3>48 && l3<57){
-        	l3_str=getASCIValue(l3.intValue());
-        }else{
-        	l3=l3+7;
-        	l3_str=getASCIValue(l3.intValue());
-        }
+		String loc_code_from_db = StSeSettingparameter.getId().getSeLoccode();
 
-        boolean is_loc_code_same;
-        
-        dataMap.put("loc_code_same", "false");
-    
-        if(apploc1.equals(String.valueOf(l1_str))&&apploc2.equals(String.valueOf(l2_str))&&apploc3.equalsIgnoreCase(String.valueOf(l3_str))){
-        	dataMap.put("loc_code_same", "true");
-        	is_loc_code_same=true;
-        }
-        
-        
-	return dataMap;
-	
+		String apploc1 = barcod1e.substring(15, 16);
+		String apploc2 = barcod1e.substring(16, 17);
+		String apploc3 = barcod1e.substring(17, 18);
+
+		String loc1 = loc_code_from_db.substring(0, 1);
+		String loc2 = loc_code_from_db.substring(1, 2);
+		String loc3 = loc_code_from_db.substring(2, 3);
+
+		Double minuteVal = Double.valueOf(minuteval);
+
+		Double l1 = Integer.valueOf(loc1) + Math.floor(minuteVal / 10) + 48;
+		char l1_str;
+
+		if (l1 > 48 && l1 < 57) {
+			l1_str = getASCIValue(l1.intValue());
+		} else {
+			l1 = l1 + 7;
+			l1_str = getASCIValue(l1.intValue());
+		}
+
+		/*
+		 * $l2 = (int)$loc2 + ($minuteval % 7) + 48; if ($l2 > 48 && $l2 < 57) {
+		 * $l2 = chr($l2); } else { $l2 = $l2 + 7; $l2 = chr($l2); }
+		 */
+		Double l2 = Integer.valueOf(loc2) + Math.floor(minuteVal % 7) + 48;
+		char l2_str;
+		if (l2 > 48 && l2 < 57) {
+			l2_str = getASCIValue(l2.intValue());
+		} else {
+			l2 = l2 + 7;
+			l2_str = getASCIValue(l2.intValue());
+		}
+		/*
+		 * $l3 = (int)$loc3 + ($hourval % 7) + 48; if ($l3 > 48 && $l3 < 57) {
+		 * $l3 = chr($l3); } else { $l3 = $l3 + 7; $l3 = chr($l3); }
+		 */
+
+		Double l3 = Integer.valueOf(loc3) + Math.floor(Double.valueOf(hourVal) % 7) + 48;
+		char l3_str;
+
+		if (l3 > 48 && l3 < 57) {
+			l3_str = getASCIValue(l3.intValue());
+		} else {
+			l3 = l3 + 7;
+			l3_str = getASCIValue(l3.intValue());
+		}
+
+		boolean is_loc_code_same = false;
+
+		dataMap.put("loc_code_same", "false");
+
+		if (apploc1.equals(String.valueOf(l1_str)) && apploc2.equals(String.valueOf(l2_str))
+				&& apploc3.equalsIgnoreCase(String.valueOf(l3_str))) {
+			dataMap.put("loc_code_same", "true");
+			is_loc_code_same = true;
+		}
+
+		return dataMap;
+
 	}
 
-public static char getASCIValue(int value){
-	//	int value = 54;
+	private static char getASCIValue(int value) {
 		char digit = (char) value;
-		System.out.println("The ASCII representation of " + value + " is ->" + digit + "<-"); 
-		
 		return digit;
 	}
 
+	private Date stringToDate(String dateInString) {
+		SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		Date date = null;
+		try {
+			date = formatter.parse(dateInString);
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+		return date;
+	}
+
+	private Integer timeDurationInMinutes(Date intime) {
+		Date currentDate = new Date();
+		Long duration = currentDate.getTime() - intime.getTime();
+
+		Long diffInSeconds = TimeUnit.MILLISECONDS.toSeconds(duration);
+		Long diffInMinutes = TimeUnit.MILLISECONDS.toMinutes(duration);
+		Long diffInHours = TimeUnit.MILLISECONDS.toHours(duration);
+
+		return diffInMinutes.intValue();
+
+	}
 
 }

@@ -38,13 +38,20 @@
 			$("#errorModal").modal();
 		});
 	}
-	
-	
+
+
 	function openAlreadyScannedModal() {
 		$(document).ready(function() {
 			$("#alreadyScanned").modal();
 		});
 	}
+	function openLocationCodeDiff() {
+		$(document).ready(function() {
+			$("#locCodeDiff").modal();
+		});
+	}
+	
+	
 </script>
 
 
@@ -60,56 +67,72 @@
 		<div class="py-5 text-center">
 			<h2>Welcome</h2>
 		</div>
-		<div class="well">
-			<div class="py-5 text-right">
-				<form method="POST" action="/endShift?userName=${userName}">
-					<button class="btn btn-primary btn-sm" name="endShift" type="submit">End Shift</button>
-				</form>
-				<form method="POST" action="/logout?userName=${userName}">
-					<button class="btn btn-primary btn-sm" name="logout" type="submit">Logout</button>
-				</form>
+
+		<div class="py-5 text-right">
+
+			<div class="col-xs-6 text-left">
+				<div class="previous">
+					<form method="POST" action="/endShift?userName=${userName}">
+						<button class="btn btn-primary btn-lg" name="endShift" type="submit">End Shift</button>
+					</form>
+
+				</div>
 			</div>
-
-			<div class="row">
-				<div class="col-md-8 order-md-1">
-
-					<form method="POST" action="/cpsOperation">
-						<div class="row">
-							<div class="col-md-6 mb-3">
-								<h2 class="mb-3">Ticket No.</h2>
-							</div>
-							<div class="col-md-6 mb-3" style="margin-top: 20px">
-								<input type="text" class="form-control" id="ticketNumber" name="ticketNumber" placeholder="Ticket number"
-									value="" required>
-
-							</div>
-						</div>
-						<br> <br>
-						<div class="row">
-							<button class="btn btn-primary btn-lg" type="submit">Proceed</button>
-							<button class="btn btn-primary btn-lg" type="button" data-toggle="modal" data-target="#cancelModal">Cancel</button>
-						</div>
-						<c:if test="${not empty success}">
-							<script>
-								openSuccessModal();
-							</script>
-						</c:if>
-
-						<c:if test="${not empty error}">
-							<script>
-								openErrorModal();
-							</script>
-						</c:if>
-						
-						<c:if test="${not empty alreadyScanned}">
-							<script>
-								openAlreadyScannedModal();
-							</script>
-						</c:if>
+			<div class="col-xs-6 text-right">
+				<div class="next">
+					<form method="POST" action="/logout?userName=${userName}">
+						<button class="btn btn-primary btn-lg" name="logout" type="submit">Logout</button>
 					</form>
 				</div>
 			</div>
 		</div>
+
+		<div class="row">
+			<div class="col-md-8 order-md-1" style="margin-top:50px">
+
+				<form method="POST" action="/cpsOperation">
+					<div class="row">
+						<div class="col-md-6 mb-3">
+							<h2 class="mb-3">Ticket No.</h2>
+						</div>
+						<div class="col-md-6 mb-3" style="margin-top: 20px">
+							<input type="text" class="form-control" id="ticketNumber" name="ticketNumber" placeholder="Ticket number"
+								value="" required>
+
+						</div>
+					</div>
+					<br> <br>
+					<div class="row" style="margin-top:50px;margin-left:10px">
+						<button class="btn btn-primary btn-lg" type="submit">Proceed</button>
+						<button class="btn btn-primary btn-lg" type="button" data-toggle="modal" data-target="#cancelModal">Cancel</button>
+					</div>
+					<c:if test="${not empty success}">
+						<script>
+							openSuccessModal();
+						</script>
+					</c:if>
+
+					<c:if test="${not empty error}">
+						<script>
+							openErrorModal();
+						</script>
+					</c:if>
+
+					<c:if test="${not empty alreadyScanned}">
+						<script>
+							openAlreadyScannedModal();
+						</script>
+					</c:if>
+					
+					<c:if test="${not empty locCodeDiff}">
+						<script>
+							openLocationCodeDiff();
+						</script>
+					</c:if>
+				</form>
+			</div>
+		</div>
+
 
 		<!--Cancel Modal -->
 		<div class="modal fade" id="cancelModal" role="dialog">
@@ -143,8 +166,6 @@
 					</div>
 					<div class="modal-body">
 						<p>Transaction Process completed successfully.!</p>
-						<a href="#" class="btn btn-success btn-lg"> <span class="glyphicon glyphicon-ok"></span>
-						</a>
 					</div>
 					<div class="modal-footer">
 						<button type="button" class="btn btn-success" data-dismiss="modal">Ok</button>
@@ -164,8 +185,6 @@
 					</div>
 					<div class="modal-body">
 						<p>Transaction Process Failed.!</p>
-						<a href="#" class="btn btn-danger btn-lg"> <span class="glyphicon glyphicon-ok"></span>
-						</a>
 					</div>
 					<div class="modal-footer">
 						<button type="button" class="btn btn-danger" data-dismiss="modal">Ok</button>
@@ -186,8 +205,6 @@
 					</div>
 					<div class="modal-body">
 						<p>Ticket already Scanned</p>
-						<a href="#" class="btn btn-danger btn-lg"> <span class="glyphicon glyphicon-ok"></span>
-						</a>
 					</div>
 					<div class="modal-footer">
 						<button type="button" class="btn btn-info" data-dismiss="modal">Ok</button>
@@ -197,7 +214,28 @@
 		</div>
 
 
-		<footer class="my-5 pt-5 text-muted text-center text-small">
+		<!-- Locaion code is different -->
+		<div class="modal fade" id="locCodeDiff" role="dialog">
+			<div class="modal-dialog">
+				<!-- Modal content-->
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal">&times;</button>
+						<h4 class="modal-title">Info</h4>
+					</div>
+					<div class="modal-body">
+						<p>Location code different than expected</p>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-warning" data-dismiss="modal">Ok</button>
+					</div>
+				</div>
+			</div>
+		</div>
+
+
+
+		<footer class="my-5 pt-5 text-muted text-center text-small" style="margin-top:100px">
 			<p class="mb-1">&copy; 2017-2018 Company Name</p>
 			<ul class="list-inline">
 				<li class="list-inline-item"><a href="#">Privacy</a></li>

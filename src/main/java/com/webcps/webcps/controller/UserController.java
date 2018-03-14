@@ -1,6 +1,7 @@
 package com.webcps.webcps.controller;
 
 import java.math.BigDecimal;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -59,15 +60,27 @@ public class UserController {
 	@RequestMapping(value = "/cpsOperation", method = RequestMethod.POST)
 	public String cpsOperation(Model model, @RequestParam("ticketNumber") String ticketNumber) {
 
-		TrTfTransfast trTfTransfast = trTfTransfastRepo.findOne(ticketNumber);
-		if (trTfTransfast != null) {
-			model.addAttribute("alreadyScanned", "Ticket already scanned");
+		Map<String, String> decoded = calculationService.getData(ticketNumber);
+		String barcode_loc_code = decoded.get("loc_code_same");
+		String barcode_in_time = decoded.get("in_time_barcode");
+		String barcode_tiTickeNo = decoded.get("tiTicketNo");
+		String barcode_gateId = decoded.get("gateId");
+
+		if ("false".equals(barcode_loc_code)) {
+			model.addAttribute("locCodeDiff", "Location code different than expected");
 		} else {
-			BigDecimal rate = calculationService.calacRateInfo(ticketNumber);
-			if (rate.compareTo(new BigDecimal(-9999)) != 0)
-				model.addAttribute("success", "Transaction Process completed successfully");
-			else
-				model.addAttribute("error", "Transaction Process Failed");
+			TrTfTransfast trTfTransfast = trTfTransfastRepo.findOne(ticketNumber);
+			if (trTfTransfast != null) {
+				model.addAttribute("alreadyScanned", "Ticket already scanned");
+			} else {
+				BigDecimal rate = calculationService.calacRateInfo(ticketNumber, barcode_in_time, barcode_tiTickeNo,
+						barcode_gateId);
+				if (rate.compareTo(new BigDecimal(-9999)) != 0)
+					model.addAttribute("success", "Transaction Process completed successfully");
+				else
+					model.addAttribute("error", "Transaction Process Failed");
+			}
+
 		}
 
 		return "welcome";
@@ -75,6 +88,13 @@ public class UserController {
 
 	@RequestMapping(value = "/calc", method = RequestMethod.GET)
 	public BigDecimal getCalculation(@RequestParam("barcode") String barcode) {
-		return calculationService.calacRateInfo(barcode);
+
+		Map<String, String> decoded = calculationService.getData(barcode);
+		String barcode_loc_code = decoded.get("loc_code_same");
+		String barcode_in_time = decoded.get("in_time_barcode");
+		String barcode_tiTickeNo = decoded.get("tiTicketNo");
+		String barcode_gateId = decoded.get("gateId");
+
+		return calculationService.calacRateInfo(barcode, barcode_in_time, barcode_tiTickeNo, barcode_gateId);
 	}
 }
