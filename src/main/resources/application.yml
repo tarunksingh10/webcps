@@ -1,9 +1,9 @@
 spring:
-  datasource:
-    driverClassName: com.mysql.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/qsps?characterEncoding=utf8&zeroDateTimeBehavior=convertToNull
-    username: root
-    password: root
+  #datasource:
+    #driverClassName: com.mysql.jdbc.Driver
+    #url: jdbc:mysql://localhost:3306/qsps?characterEncoding=utf8&zeroDateTimeBehavior=convertToNull
+    #username: root
+    #password: root
   jpa:
     hibernate:
       naming:

@@ -212,7 +212,7 @@ public class BarCodeDecoding {
 
 	
 	
-	public Map getData(String barcode){
+	public Map getData(String barcode, String locCode_fromDB){
 		
 		
 		Map<String,String> dataMap= new HashMap<String, String>();

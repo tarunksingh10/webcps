@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -26,6 +27,9 @@ public class UserController {
 
 	@Autowired
 	private TrTfTransfastRepo trTfTransfastRepo;
+	
+	@Value("${spring.ipaddress}")
+	private String ipaddress;
 
 	@RequestMapping(value = "/login", method = RequestMethod.GET)
 	public String login(Model model, String error, String logout) {
@@ -35,6 +39,8 @@ public class UserController {
 	@RequestMapping(value = "/welcome", method = RequestMethod.GET)
 	public String welcome(Model model, @RequestParam("userName") String userName,
 			@RequestParam("password") String password) {
+		
+		System.out.println("*********************************************"+ipaddress);
 		String userExists = loginService.userAuthentication(userName, password);
 		if (userExists != null) {
 			model.addAttribute("errorMessage", userExists);
