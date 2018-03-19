@@ -1,15 +1,15 @@
 package com.webcps.webcps.service;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.util.Date;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.webcps.webcps.model.UsLlLoglogin;
 import com.webcps.webcps.model.UsLuListuser;
 import com.webcps.webcps.model.UsUhUserhistory;
+import com.webcps.webcps.model.UsUhUserhistoryPK;
 import com.webcps.webcps.repository.UsLlLogloginRepo;
 import com.webcps.webcps.repository.UsLuListuserRepo;
 import com.webcps.webcps.repository.UsUhUserhistoryRepo;
@@ -26,6 +26,9 @@ public class LoginService {
 	@Autowired
 	private UsLlLogloginRepo usLlLogloginRepo;
 
+	@Value("${spring.ipaddress}")
+	private String ipaddress;
+
 	public String userAuthentication(String user, String password) {
 		UsLuListuser usLuListuser = usLuListuserRepo.findOne(user);
 		if (usLuListuser == null || !usLuListuser.getLuPassword1().equals(password))
@@ -38,20 +41,18 @@ public class LoginService {
 
 	public void afterLogin(String user) {
 		UsLuListuser usLuListuser = usLuListuserRepo.findOne(user);
-		String hostip = null;
+		// String hostip = null;
 		if (usLuListuser.getLuStatus().trim().equals("A")) {
-			try {
-				hostip = InetAddress.getLocalHost().getHostAddress().toString();
-				if (usLuListuser.getLuLlType().equals("E")) {
-					usLuListuser.setLuLlType("S");
-					usLuListuser.setLuStartdate(new Date());
-					usLuListuser.setLuEnddate(new Date(0000, 00, 00, 00, 00, 00));
-					usLuListuser.setLuIpaddr(hostip);
-				}
-				addRecordUsLlLoglogin(usLuListuser);
-			} catch (UnknownHostException e) {
-				e.printStackTrace();
+
+			// hostip = InetAddress.getLocalHost().getHostAddress().toString();
+			if (usLuListuser.getLuLlType().equals("E")) {
+				usLuListuser.setLuLlType("S");
+				usLuListuser.setLuStartdate(new Date());
+				usLuListuser.setLuEnddate(new Date(0000, 00, 00, 00, 00, 00));
+				usLuListuser.setLuIpaddr(ipaddress);
 			}
+			addRecordUsLlLoglogin(usLuListuser);
+
 		}
 
 	}
@@ -82,19 +83,17 @@ public class LoginService {
 
 	public void endShift(String user) {
 		UsLuListuser usLuListuser = usLuListuserRepo.findOne(user);
-		String hostip = null;
+		// String hostip = null;
 		if (usLuListuser.getLuStatus().trim().equals("A")) {
 			if (usLuListuser.getLuLlType().equals("S")) {
-				try {
-					hostip = InetAddress.getLocalHost().getHostAddress().toString();
-					usLuListuser.setLuStatus("P");
-					usLuListuser.setLuLlType("E");
-					usLuListuser.setLuEnddate(new Date());
-					usLuListuser.setLuOldip(hostip);
-					addRecordUsUhUserhistory(usLuListuser);
-				} catch (UnknownHostException e) {
-					e.printStackTrace();
-				}
+
+				// hostip =
+				// InetAddress.getLocalHost().getHostAddress().toString();
+				usLuListuser.setLuStatus("P");
+				usLuListuser.setLuLlType("E");
+				usLuListuser.setLuEnddate(new Date());
+				usLuListuser.setLuOldip(ipaddress);
+				addRecordUsUhUserhistory(usLuListuser);
 
 			} else if (usLuListuser.getLuLlType().equals("E")) {
 
@@ -104,6 +103,7 @@ public class LoginService {
 
 	private void addRecordUsUhUserhistory(UsLuListuser usLuListuser) {
 		UsUhUserhistory usUhUserhistory = new UsUhUserhistory();
+		UsUhUserhistoryPK usUhUserhistoryPK = new UsUhUserhistoryPK();
 		usUhUserhistory.setLuCode(usLuListuser.getLuCode());
 		usUhUserhistory.setLuInitial(usLuListuser.getLuInitial());
 		usUhUserhistory.setLuUser(usLuListuser.getLuUser());
@@ -125,9 +125,12 @@ public class LoginService {
 		usUhUserhistory.setLuTimea(usLuListuser.getLuTimea());
 		usUhUserhistory.setLuBackup(0);
 		usUhUserhistory.setLuAccess("O");
-		usUhUserhistory.setLuLlType("S");
-		usUhUserhistory.setLuStartdate(usLuListuser.getLuStartdate());
-		usUhUserhistory.setLuEnddate(usLuListuser.getLuEnddate());
+		usUhUserhistory.setLuLlType(usLuListuser.getLuLlType());
+
+		usUhUserhistoryPK.setLuEnddate(usLuListuser.getLuEnddate());
+		usUhUserhistoryPK.setLuStartdate(usLuListuser.getLuStartdate());
+		usUhUserhistory.setId(usUhUserhistoryPK);
+
 		usUhUserhistory.setLuSeod(new Date(0000, 00, 00, 00, 00, 00));
 		usUhUserhistory.setLuEeod(new Date(0000, 00, 00, 00, 00, 00));
 		usUhUserhistory.setLuRseod(new Date(0000, 00, 00, 00, 00, 00));

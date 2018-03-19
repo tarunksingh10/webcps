@@ -4,8 +4,8 @@ import java.io.Serializable;
 import java.util.Date;
 
 import javax.persistence.Column;
+import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
-import javax.persistence.Id;
 import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
@@ -24,6 +24,9 @@ import lombok.Data;
 public class UsUhUserhistory implements Serializable {
 	private static final long serialVersionUID = 1L;
 
+	@EmbeddedId
+	private UsUhUserhistoryPK id;
+
 	@Column(name = "lu_access")
 	private String luAccess;
 
@@ -33,7 +36,6 @@ public class UsUhUserhistory implements Serializable {
 	@Column(name = "lu_backup")
 	private int luBackup;
 
-	@Id
 	@Column(name = "lu_code")
 	private String luCode;
 
@@ -49,10 +51,6 @@ public class UsUhUserhistory implements Serializable {
 	@Temporal(TemporalType.TIMESTAMP)
 	@Column(name = "lu_eeod")
 	private Date luEeod;
-
-	@Temporal(TemporalType.TIMESTAMP)
-	@Column(name = "lu_enddate")
-	private Date luEnddate;
 
 	@Column(name = "lu_initial")
 	private String luInitial;
@@ -95,10 +93,6 @@ public class UsUhUserhistory implements Serializable {
 	@Temporal(TemporalType.TIMESTAMP)
 	@Column(name = "lu_seod")
 	private Date luSeod;
-
-	@Temporal(TemporalType.TIMESTAMP)
-	@Column(name = "lu_startdate")
-	private Date luStartdate;
 
 	@Column(name = "lu_status")
 	private String luStatus;

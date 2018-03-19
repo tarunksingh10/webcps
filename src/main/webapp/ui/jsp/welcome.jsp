@@ -20,6 +20,16 @@
 <script src="/bootstrap.min.js"></script>
 
 <script type="text/javascript">
+
+	window.onbeforeunload = function() {
+	    localStorage.setItem(userName, $('#userName').val());
+	}
+	
+	window.onload = function() {
+
+	    var userName = localStorage.getItem(userName);
+	    if (userName !== null) $('#userName').val(name);
+	}
 	//Refresh page
 	function refreshPage() {
 		window.parent.location = window.parent.location.href;
@@ -72,7 +82,7 @@
 
 			<div class="col-xs-6 text-left">
 				<div class="previous">
-					<form method="POST" action="/endShift?userName=${userName}">
+					<form method="POST" action="/endShift?userName=<%= session.getAttribute("userName") %>">
 						<button class="btn btn-primary btn-lg" name="endShift" type="submit">End Shift</button>
 					</form>
 
@@ -80,7 +90,7 @@
 			</div>
 			<div class="col-xs-6 text-right">
 				<div class="next">
-					<form method="POST" action="/logout?userName=${userName}">
+					<form method="POST" action="/logout?userName=<%= session.getAttribute("userName") %>">
 						<button class="btn btn-primary btn-lg" name="logout" type="submit">Logout</button>
 					</form>
 				</div>
@@ -88,21 +98,21 @@
 		</div>
 
 		<div class="row">
-			<div class="col-md-8 order-md-1" style="margin-top:50px">
+			<div class="col-md-8 order-md-1" style="margin-top: 50px">
 
-				<form method="POST" action="/cpsOperation">
+				<form method="POST" action="/cpsOperation" modelAttribute="cpsOperation">
 					<div class="row">
 						<div class="col-md-6 mb-3">
 							<h2 class="mb-3">Ticket No.</h2>
 						</div>
 						<div class="col-md-6 mb-3" style="margin-top: 20px">
 							<input type="text" class="form-control" id="ticketNumber" name="ticketNumber" placeholder="Ticket number"
-								value="" required>
+								required> <input type=hidden id="userName" name="userName" value="<%= session.getAttribute("userName") %>">
 
 						</div>
 					</div>
 					<br> <br>
-					<div class="row" style="margin-top:50px;margin-left:10px">
+					<div class="row" style="margin-top: 50px; margin-left: 10px">
 						<button class="btn btn-primary btn-lg" type="submit">Proceed</button>
 						<button class="btn btn-primary btn-lg" type="button" data-toggle="modal" data-target="#cancelModal">Cancel</button>
 					</div>
@@ -123,7 +133,7 @@
 							openAlreadyScannedModal();
 						</script>
 					</c:if>
-					
+
 					<c:if test="${not empty locCodeDiff}">
 						<script>
 							openLocationCodeDiff();
@@ -235,7 +245,7 @@
 
 
 
-		<footer class="my-5 pt-5 text-muted text-center text-small" style="margin-top:100px">
+		<footer class="my-5 pt-5 text-muted text-center text-small" style="margin-top: 100px">
 			<p class="mb-1">&copy; 2017-2018 Company Name</p>
 			<ul class="list-inline">
 				<li class="list-inline-item"><a href="#">Privacy</a></li>

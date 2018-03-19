@@ -15,14 +15,17 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.webcps.webcps.model.ChCcCasualcharge;
 import com.webcps.webcps.model.ChHlHolidayday;
 import com.webcps.webcps.model.StSeSettingparameter;
+import com.webcps.webcps.model.StSgSettinggate;
 import com.webcps.webcps.model.TrTfTransfast;
 import com.webcps.webcps.model.TrTiTransin;
 import com.webcps.webcps.repository.CCCasulaChargRepo;
+import com.webcps.webcps.repository.CCGateSettingRepo;
 import com.webcps.webcps.repository.ChHolidayRepo;
 import com.webcps.webcps.repository.StSettingParamRepo;
 import com.webcps.webcps.repository.TrTfTransfastRepo;
@@ -45,6 +48,12 @@ public class CalculationService {
 
 	@Autowired
 	private TrTfTransfastRepo trTfTransfastRepo;
+
+	@Autowired
+	private CCGateSettingRepo CCGateSettingRepo;
+
+	@Value("${spring.ipaddress}")
+	private String ipaddress;
 
 	List<String> memberTypes = new ArrayList<String>();
 
@@ -244,7 +253,7 @@ public class CalculationService {
 
 	}
 
-	public BigDecimal calacRateInfo(String barcode, String barcode_in_time, String barcode_tiTickeNo,
+	public BigDecimal calacRateInfo(String userName, String barcode, String barcode_in_time, String barcode_tiTickeNo,
 			String barcode_gateId) {
 
 		BigDecimal returnvall = new BigDecimal(-9999);
@@ -255,7 +264,7 @@ public class CalculationService {
 
 		if (null != tiTransin) {
 			returnvall = calculateRate(tiTransin);
-			insertTrTfTransfast(returnvall, tiTransin, loc_code_from_db, barcode_in_time, barcode_gateId);
+			insertTrTfTransfast(userName, returnvall, tiTransin, loc_code_from_db, barcode_in_time, barcode_gateId);
 		} else {
 			insertTrTiTransin(barcode, barcode_in_time, barcode_tiTickeNo, barcode_gateId, loc_code_from_db);
 		}
@@ -263,8 +272,11 @@ public class CalculationService {
 
 	}
 
-	private void insertTrTfTransfast(BigDecimal tarrif, TrTiTransin tiTransin, String loc_code_from_db,
+	private void insertTrTfTransfast(String userName, BigDecimal tarrif, TrTiTransin tiTransin, String loc_code_from_db,
 			String barcode_in_time, String barcode_gateId) {
+
+		StSgSettinggate stSgSettinggate = CCGateSettingRepo.findOne(ipaddress);
+
 		TrTfTransfast trTfTransfast = new TrTfTransfast();
 		trTfTransfast.setTfKey(autoGeneratekey(barcode_in_time, barcode_gateId));
 		trTfTransfast.setTfPoliceno("");
@@ -279,8 +291,8 @@ public class CalculationService {
 		trTfTransfast.setTfTicketno(tiTransin.getTiTicketno());
 		trTfTransfast.setTfDatacard("");
 		trTfTransfast.setTfManualticketno("");
-		trTfTransfast.setTfGateout("PK10");
-		trTfTransfast.setTfUserout("PP14");
+		trTfTransfast.setTfGateout(stSgSettinggate.getSgGatename());
+		trTfTransfast.setTfUserout(userName);
 		trTfTransfast.setTfDatetimeout(new Date());
 		trTfTransfast.setTfDuration(timeDurationInMinutes(stringToDate(barcode_in_time)));
 		trTfTransfast.setTfPrepaidchg(0);
