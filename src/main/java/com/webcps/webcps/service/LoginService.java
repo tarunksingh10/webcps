@@ -47,10 +47,12 @@ public class LoginService {
 			// hostip = InetAddress.getLocalHost().getHostAddress().toString();
 			if (usLuListuser.getLuLlType().equals("E")) {
 				usLuListuser.setLuLlType("S");
-				usLuListuser.setLuStartdate(new Date());
-				usLuListuser.setLuEnddate(new Date(0000, 00, 00, 00, 00, 00));
-				usLuListuser.setLuIpaddr(ipaddress);
+			} else if (usLuListuser.getLuLlType().equals("S")) {
+				usLuListuser.setLuLlType("E");
 			}
+			usLuListuser.setLuStartdate(new Date());
+			usLuListuser.setLuEnddate(new Date(0000, 00, 00, 00, 00, 00));
+			usLuListuser.setLuIpaddr(ipaddress);
 			addRecordUsLlLoglogin(usLuListuser);
 
 		}
@@ -86,11 +88,12 @@ public class LoginService {
 		// String hostip = null;
 		if (usLuListuser.getLuStatus().trim().equals("A")) {
 			if (usLuListuser.getLuLlType().equals("S")) {
-
+				usLuListuser.setLuLlType("E");
 				// hostip =
 				// InetAddress.getLocalHost().getHostAddress().toString();
+				addRecordUsLlLoglogin(usLuListuser);
 				usLuListuser.setLuStatus("P");
-				usLuListuser.setLuLlType("E");
+				
 				usLuListuser.setLuEnddate(new Date());
 				usLuListuser.setLuOldip(ipaddress);
 				addRecordUsUhUserhistory(usLuListuser);
